@@ -1,0 +1,10 @@
+{
+  "name": "tangled",
+  "version": "1.0.0",
+  "dependencies": {
+    "nodemon": "^2.0.14"
+  },
+  "devDependencies": {
+    "socket.io": "^4.3.1"
+  }
+}
