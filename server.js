@@ -1,5 +1,4 @@
 const http = require("http");
-const { Server } = require("socket.io");
 const socket = require("./socket");
 
 const hostname = '127.0.0.1';
@@ -11,9 +10,7 @@ const server = http.createServer((req, res) => {
     res.end('Hello World');
 });
 
-const io = new Server(server);
-
-socket.startSocketServer(io);
+socket.startSocketServer(server);
 
 server.listen(port, hostname, () => {
     console.log(`Server running at ${hostname}:${port}/`);
