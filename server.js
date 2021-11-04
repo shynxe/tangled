@@ -1,14 +1,19 @@
+const express = require('express');
+const app = express();
 const http = require("http");
+const server = http.createServer(app);
 const socket = require("./socket");
+const cors = require("cors");
+
+const playerController = require("./controllers/playerController");
+const roomController = require("./controllers/roomController");
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 3001;
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World');
-});
+app.use(cors());
+app.use('/player', playerController);
+app.use('/room', roomController);
 
 socket.startSocketServer(server);
 

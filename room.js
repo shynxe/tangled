@@ -7,7 +7,9 @@ class Room {
         this.round = 0;
         this.order = [];
         this.messageCount = 0;
-        this.totalRounds = 5;
+        this.totalRounds = 2;
+        this.timePerRound = 20000;
+        this.started = false;
     }
 
     addPlayer(player) {
@@ -28,6 +30,7 @@ class Room {
     nextRound() {
         this.round = this.round + 1;
         this.order = [];
+        this.messageCount = 0;
         for (const player of this.players)
             this.order.push(player.getID());
         shuffle(this.order);
@@ -63,7 +66,19 @@ class Room {
         return this.totalRounds;
     }
 
-    resetRoom(){
+    getTimePerRound() {
+        return this.timePerRound;
+    }
+
+    getStarted() {
+        return this.started;
+    }
+
+    setStarted(value) {
+        this.started = value;
+    }
+
+    resetRoom() {
         // to implement what happens after game ends
     }
 }
