@@ -6,9 +6,10 @@ class Room {
         this.players = [player];
         this.round = 0;
         this.order = [];
+        this.game = 0;
         this.messageCount = 0;
-        this.totalRounds = 2;
-        this.timePerRound = 20000;
+        this.totalRounds = 3;
+        this.timePerRound = 18000;
         this.started = false;
     }
 
@@ -51,10 +52,8 @@ class Room {
     getMessages() {
         let messages = [];
         let players = this.getPlayers()
-        for (const player of players) {
-            messages.push(player.getStory());
-            console.log(player.getStory());
-        }
+        for (const player of players)
+            messages.push({"playerName": player.getName(), "story": player.getStory()});
         return messages;
     }
 
@@ -80,6 +79,18 @@ class Room {
 
     resetRoom() {
         // to implement what happens after game ends
+        this.round = 0;
+        this.messageCount = 0;
+        this.order = [];
+        this.started = false;
+    }
+
+    incrementGame() {
+        this.game = this.game + 1;
+    }
+
+    getGame() {
+        return this.game;
     }
 }
 

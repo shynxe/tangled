@@ -46,6 +46,10 @@ class Player {
         return this.messages[this.messages.length - 1].getMessage();
     }
 
+    clearStory() {
+        this.messages = [];
+    }
+
     setReady(isReady) {
         this.ready = isReady;
     }

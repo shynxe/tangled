@@ -7,6 +7,16 @@ const {Message} = require("./message");
 let rooms = {};
 let players = {};
 
+const resetRoom = (roomID) => {
+    rooms[roomID].incrementGame();
+    let playersList = rooms[roomID].getPlayers()
+    rooms[roomID].resetRoom()
+    for (let i = 0; i < playersList.length; i++) {
+        players[playersList[i]['id']].setReady(false);
+        players[playersList[i]['id']].clearStory();
+    }
+}
+
 const startSocketServer = (server) => {
     const io = new Server(server, {
         cors: {
@@ -54,10 +64,10 @@ const startSocketServer = (server) => {
         socket.on('joinRoom', (roomID) => {
             // TODO: Check if roomID exists
             if (!rooms[roomID]) {
-                io.emit("error", "roomID doesn't exist");
+                socket.emit("error", "roomID doesn't exist");
                 return;
             } else if (rooms[roomID].getStarted()) {
-                io.emit("error", "game already ongoing");
+                socket.emit("error", "game already ongoing");
                 return;
             }
             socket.join(roomID);
@@ -81,6 +91,10 @@ const startSocketServer = (server) => {
                 return;
             }
             io.to(roomID).emit("playersChange", rooms[roomID].getPlayers());
+            if (rooms[roomID].getStarted()) {
+                io.to(roomID).emit("cancelGame", "");
+                resetRoom(roomID);
+            }
         });
 
         socket.on('disconnect', () => {
@@ -104,6 +118,11 @@ const startSocketServer = (server) => {
             }
             if (allready) {
                 io.to(roomID).emit("gameStart", {});
+                let round = rooms[roomID].getRound();
+                setTimeout(() => {
+                    if (rooms[roomID] != null)
+                        io.to(roomID).emit('forceNextRound', {'round': round, 'game': rooms[roomID].getGame()});
+                }, rooms[roomID].getTimePerRound());
                 rooms[roomID].setStarted(true);
                 console.log(roomID + ": " + lobby.length + "/" + lobby.length + " players ready.");
             }
@@ -118,23 +137,24 @@ const startSocketServer = (server) => {
         socket.on('newMessage', (data) => {
             let playerRoomID = players[socket.id].getRoom();
             let msg = new Message(data['from'], socket.id, data['message']);
-            players[socket.id].addMessage(msg);
+            if (data['from'] === '')
+                players[socket.id].addMessage(msg);
+            else
+                players[data['from']].addMessage(msg);
             rooms[playerRoomID].newMessage();
-            console.log(msg);
 
             let roomPlayers = rooms[playerRoomID].getPlayers();
             if (roomPlayers.length === rooms[playerRoomID].messageCount) {
                 // Room is ready for next round
-                console.log("next round");
                 if (rooms[playerRoomID].getRound() === rooms[playerRoomID].getTotalRounds()) {
                     io.to(playerRoomID).emit("gameOver", rooms[playerRoomID].getMessages());
+                    resetRoom(playerRoomID);
                     rooms[playerRoomID].resetRoom();
-                    console.log("Game over");
+                    console.log("Room " + playerRoomID + ": Game finished.");
                     return;
                 }
                 rooms[playerRoomID].nextRound();
                 let order = rooms[playerRoomID].getOrder();
-                console.log(order);
                 msg = new Message(order[0], socket.id, players[order[0]].getLastMessage());
                 io.to(order[1]).emit('shuffledMessage', msg);
                 for (let i = 1; i < order.length - 1; i++) {
@@ -143,8 +163,13 @@ const startSocketServer = (server) => {
                 }
                 msg = new Message(order[order.length - 1], socket.id, players[order[order.length - 1]].getLastMessage());
                 io.to(order[0]).emit('shuffledMessage', msg);
+                let round = rooms[playerRoomID].getRound();
                 setTimeout(() => {
-                    io.to(playerRoomID).emit('forceNextRound', rooms[playerRoomID].getRound());
+                    if (rooms[playerRoomID] != null)
+                        io.to(playerRoomID).emit('forceNextRound', {
+                            'round': round,
+                            'game': rooms[playerRoomID].getGame()
+                        });
                 }, rooms[playerRoomID].getTimePerRound());
             }
         });

@@ -8,7 +8,7 @@ const cors = require("cors");
 const playerController = require("./controllers/playerController");
 const roomController = require("./controllers/roomController");
 
-const hostname = '127.0.0.1';
+const hostname = '192.168.100.8';
 const port = 3001;
 
 app.use(cors());
