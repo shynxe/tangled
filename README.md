@@ -60,37 +60,6 @@ The sentences written by everyone are shuffled and sent out to each player to co
   <img src="https://i.imgur.com/pVlr9tb.png">
 </p>
 
-## API
-
-### player
-| Route        | Query           | Return  |
-| ------------- |:-------------:| -----:|
-| player/getPlayers     | - | players: Players object in memory |
-| player/getPlayer      | playerID: int |   player: Player object of given id in memory |
-
-### room
-| Route        | Query           | Return  |
-| ------------- |:-------------:| -----:|
-| room/getRoom | roomID: int |    room: Room object in memory |
-| room/getRound | roomID: int |    roomID: int - the round the room is at |
-| room/getPlayers | roomID: int |    roomPlayers: list of all the players in the given room |
-
-## Socket.io Events
-
-| Event        | Query           | Description  |
-| ------------- |:-------------:| -----|
-| connection | socket |    Event called on socket connection |
-| setName | playerName: string |    Event emitted by client to change player's name |
-| createRoom | - |    Event emitted by client to call for a new room |
-| joinRoom | roomID: int |    Event emitted by client to call for joining a given room |
-| playerReady | - |    Event emitted by player to mark him as ready to play |
-| cancelReady | - |    Event emitted by player to set his ready as false |
-| newMessage | {'from': string, 'message': string} |    Event marks handling of a new message from a player |
-| shuffledMessage | {'from': string, 'message': string} |    Event emitted by server to a player, sending him a random message from someone else |
-| gameOver | - |    Event sent to all players in a room when the game is over |
-| forceNextRound | - | Event sent to the players who have not yet sent their message when the round timer is over|
-| disconnecting | - |    Event for removing player from all rooms and memory |
-
 
 ## Libraries used
 
